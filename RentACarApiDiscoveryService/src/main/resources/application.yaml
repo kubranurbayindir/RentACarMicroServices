@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: discovery-monitor
+server:
+  port: 8761
+  client: 
+    registerWithEureka: false
+    fetchRegistry : false
+    serviceUrl:
+      defaultZone: http://localhost:8761
+

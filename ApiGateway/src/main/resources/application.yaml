@@ -1,0 +1,79 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+
+      routes:
+        - id: users-status-check
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/users/status/check
+            - Method=GET
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+
+        - id: users-ws-individualCustomers-corporateCustomers-login
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/users/login
+            - Method=POST
+          filters:
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+
+        - id: users-ws-individualCustomers-register
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/individualCustomers/add
+            - Method=POST
+          filters:
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+
+        - id: users-ws-corporateCustomer-register
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/corporateCustomers/add
+            - Method=POST
+          filters:
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+
+        - id: users-ws-individualCustomers-update-delete-get
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/individualCustomers/*
+            - Method=PUT,DELETE,GET
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+
+        - id: users-ws-corporateCustomers-update-delete-get
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/corporateCustomers/*
+            - Method=PUT,DELETE,GET
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+
+
+token:
+  secret: MySuperSecretKeyMySuperSecretKeyMySuperSecretKey
